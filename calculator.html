@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Calculator</title>
+
+<!--Script start-->
+<script type="text/javascript">
+  // link text field:
+  var output;
+
+  //variables for writing the first operand and operator symbol:
+  var operand, operator;
+
+  //variables to identify the input mode of the number and decimal point:
+  var numState, pntState;
+
+  // array with operator characters:
+  var ops = ["+", "-", "*", "/", "="];
+
+  // link to reset button:
+  var btn;
+
+  // function called when clicking on the button with the number:
+  function btnPress(k) {
+
+    // if a number is entering but no digit has yet been entered:
+    if (numState) {
+
+      // value text field:
+      output.value = k;
+
+      // change the value of the variable that determines the input mode number:
+      numState = false;
+    }
+
+    // if you have already entered numbers when entering the mnumber:
+    else {
+
+      //if in text field zero value:
+      if (output.value == "0") {
+        
+        // new value in text field:
+        output.value = k;
+      }
+
+      // if in text field already have number:
+      else {
+
+        // the digit is appended to the end of the current value in the text field:
+        output.value += k;
+      }
+    }
+  }
+
+  // handling of the event associated with loading the document:
+  window.onload = function() {
+
+    // link to reset button:
+    btn = document.getElementById("btnC");
+
+    // link text field:
+    output = document.getElementById("myoutput");
+
+    // text field locked:
+    output.disabled = true;
+
+    // event handler associated with a click on the reset button:
+    btn.onclick = function() {
+
+      // resetting the value in the text field:
+      output.value = "0";
+
+      // the value of the variable that determines the decimal point input mode:
+      pntState = true;
+
+      // the value of the variable that determines the input mode number:
+      numState = true;
+
+      // initial value of the variable defining the operation:
+      operator = "";
+
+      // initial value for the first operand:
+      operand = "";
+    }
+
+    // event handler for clicking on the decimal point button:
+    document.getElementById("btnDot").onclick = function() {
+
+      // if decimal point is allowed:
+      if (pntState) {
+
+        // if the numbers have not been entered yet when entering the number:
+        if (numState) {
+
+          // dot adding with zero:
+          output.value = "0.";
+
+          // change the value of the variable that determines the input mode number:
+          numState = false;
+        }
+
+        // if you have already entered numbers when entering the number:
+        else {
+
+          // adding dot to current number representation:
+          output.value += ".";
+        }
+
+        // new value for variable that determines dot entry mode (prohibit dot entry):
+        pntState = false;
+      }
+    }
+
+    // event hendler for clicking on buttons to enter numbers:
+    for (var k = 0; k <= 9; k++) {
+      document.getElementById("btn" + k).onclick = function() {
+
+        // function call btnPress() with an argument whose value is determined by
+        // the "value" property of the corresponding button:
+        btnPress(this.value);
+      }
+    }
+
+    // handlers for operator character input buttons:
+    for (var p = 0; p < ops.length; p++) {
+      document.getElementById("btn" + ops[p]).onclick = function() {
+
+        // if the first operand exists (not empty line) and if it not text "Error!":
+        if (operand != "" && operand != "Eroor!") {
+
+          // expression result:
+          var res = eval(operand + operator + output.value);
+
+          // if an error occurred:
+          if (res == "Infinity" || res == "-Infinity" || isNaN(res)) {
+
+            // symbol operator:
+            operator = "";
+
+            // first operand:
+            operand = "";
+
+            // value in text field:
+            output.value = "Error!";
+          }
+
+          // if no error:
+          else {
+
+            // the text field displays the result of the calculation:
+            output.value = res;
+
+            // if you click on the input button of the equality operator:
+            if (this.value == "=") {
+
+              // value first operand:
+              operand = "";
+            }
+
+            // if the click is not on the input button of the equality operator:
+            else {
+
+              // computed value becomes operand:
+              operand = res;
+
+              // new value for characters operator:
+              operator = this.value;
+            }
+          }
+        }
+
+        // if the first operand does not exist (empty line) or if it text "Error!":
+        else {
+
+          // if no button was pressed to enter the equality operator:
+          if (this.value != "=") {
+
+            // new value for operator symbol:
+            operator = this.value;
+
+            // the contents of the text field becomes the value of the first operand:
+            operand = output.value;
+          }
+        }
+
+        // new number input mode:
+        numState = true;
+
+        // decimal point allowed:
+        pntState = true;
+      }
+    }
+
+    // handling a form-related event of keystroke to enter a character
+    // (numbers, points or characters operators):
+    document.getElementById("mycalc").onkeypress = function(evt) {
+
+      // index variable:
+      var k;
+
+      // array to write character numbers:
+      var nums = new Array(10);
+      
+      // array fill:
+      for (k = 0; k < nums.length; k++) {
+
+        // array element value:
+        nums[k] = "" + k;
+      }
+
+      // character definition by keyed code:
+      var symb = String.fromCharCode(evt.which);
+
+      // if the number key is pressed:
+      if (symb in nums) {
+
+        // function call to hendle the number key press:
+        btnPress(symb);
+      }
+
+      // if no key is pressed:
+      else {
+
+        // if entered point:
+        if (symb == ".") {
+
+          // soft click of the input button point:
+          document.getElementById("btnDot").click();
+        }
+
+        // if not a point is entered:
+        else {
+
+          // enumeration characters operators:
+          for (k = 0; k < ops.length; k++) {
+
+            // if input symbol operator:
+            if (symb == ops[k]) {
+
+              // soft click of the input button of the corresponding operator:
+              document.getElementById("btn" + symb).click();
+
+              // complete all event handling operations:
+              return;
+            }
+          }
+        }
+      }
+    } // completion of the event handler associated with the push of a button.
+
+    // soft click on the reset button:
+    btn.click();
+  }
+</script>
+<!-- finish script -->
+
+<!-- style description -->
+<style type="text/css">
+
+  /* style for table in form mycalc */
+  #mycalc table {
+    border-style: solid;
+    border-width: 3px;
+    border-color: #a0a0a0;
+    background-color: #f0f0f0;
+  }
+
+  /* style for button in form mycalc */
+  #mycalc input[type="button"] {
+    font-size: 15px;
+    font-weight: bold;
+    height: 30px;
+    width: 50px;
+  }
+
+  /* style for text field in form mycalc */
+  #mycalc input[type="text"] {
+    height: 25px;
+    width: 145px;
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    text-align: right;
+    padding: 2px 5px;
+  }
+</style>
+
+<!-- finish description of styles-->
+</head>
+
+<body>
+<h3>Calculator of JavaScript</h3>
+
+<!-- calculator implementation form-->
+<form id="mycalc">
+
+  <!-- form table -->
+  <table>
+
+    <!-- first row of the table -->
+    <tr>
+
+      <!-- first column in the first row -->
+      <td>
+
+        <!-- text field -->
+        <input type="text" id="myoutput">
+
+        <!-- reset button -->
+        <input type="button" value="C" id="btnC">
+      </td>
+    </tr>
+
+    <!-- second row of the table -->
+    <tr>
+
+      <!-- first column in the second row -->
+      <td style="border-top:solid 1px #a0a0a0;">
+
+        <!-- button with number 1 -->
+        <input type="button" value="1" id="btn1">
+
+        <!-- button with number 2 -->
+        <input type="button" value="2" id="btn2">
+
+        <!-- button with number 3 -->
+        <input type="button" value="3" id="btn3">
+
+        <!-- button with operator addition -->
+        <input type="button" value="+" id="btn+">
+
+        <br>
+
+        <!-- button with number 4-->
+        <input type="button" value="4" id="btn4">
+
+        <!-- button with number 5 -->
+        <input type="button" value="5" id="btn5">
+
+        <!-- button with number 6 -->
+        <input type="button" value="6" id="btn6">
+
+        <!-- button with operator subtraction -->
+        <input type="button" value="-" id="btn-">
+
+        <br>
+
+        <!-- button with number 7 -->
+        <input type="button" value="7" id="btn7">
+
+        <!-- button with number 8 -->
+        <input type="button" value="8" id="btn8">
+
+        <!-- button with number 9 -->
+        <input type="button" value="9" id="btn9">
+        
+        <!-- button with operator multiplication -->
+        <input type="button" value="*" id="btn*">
+
+        <br>
+
+        <!-- button with number 0 -->
+        <input type="button" value="0" id="btn0">
+        
+        <!-- button with decimal point -->
+        <input type="button" value="." id="btnDot">
+        
+        <!-- button with operator equality -->
+        <input type="button" value="=" id="btn=">
+
+        <!-- button with operator division -->
+        <input type="button" value="/" id="btn/">
+
+      </td>
+    </tr>
+  </table>
+</form>
+
+</body>
+</html>
